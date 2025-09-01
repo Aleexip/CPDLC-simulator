@@ -1,7 +1,9 @@
-import React, { useRef, useState } from "react";
-import { MapContainer, TileLayer, useMap, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
+import React, { useEffect, useRef, useState } from "react"; // Import React and necessary hooks for state management
+import { MapContainer, TileLayer, useMap } from "react-leaflet"; // Import necessary components from react-leaflet for map rendering
+import "leaflet/dist/leaflet.css"; // Import Leaflet CSS for proper map styling
+import { Marker, Popup, Polyline } from "react-leaflet"; // Import Marker and Popup for plane markers
+import L from "leaflet"; // Import Leaflet for map functionalities
+import "leaflet-rotatedmarker"; // Import rotated marker plugin for heading support
 
 
 // Helper component to add/remove weather overlays
@@ -49,38 +51,59 @@ function WeatherLayer({ type, visible }) {
   return null;
 }
 
-// Example plane icon (replace with your own SVG or image)
-const planeIcon = new L.Icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-  iconSize: [32, 32],
-  iconAnchor: [16, 16],
-});
-
 function App() {
+
   // State for each weather overlay
   const [showClouds, setShowClouds] = useState(false);
   const [showWind, setShowWind] = useState(false);
   const [showPressure, setShowPressure] = useState(false);
+  const [selectedCallsign, setSelectedCallsign] = useState(null);
 
-  // Example: state for planes
+  // Sample plane data
   const [planes, setPlanes] = useState([
-    { id: 1, lat: 46.5, lng: 25.5, heading: 90 },
-    { id: 2, lat: 45.8, lng: 24.8, heading: 45 },
-    // Add more planes as needed
+    { icao: "LZIB", flight_level: 350, lat: 44.57, lng: 27.48, heading: 90, speed: 450, callsign: "BUL123",trail: [[44.57,27.48]] },
+    {icao: "A320", flight_level: 320, lat: 44.87, lng: 26.48, heading: 270, speed: 430, callsign: "BUL456", trail: [[44.87,26.48]] },
+    {icao: "B737", flight_level: 300, lat: 44.57, lng: 25.48, heading: 180, speed: 400, callsign: "BUL789",trail: [[44.57,25.48]] },
+    {icao: "C172", flight_level: 100, lat: 45.57, lng: 24.48, heading: 0, speed: 120, callsign: "BUL101", trail: [[45.57,24.48]]},
+    {icao: "E190", flight_level: 280, lat: 45.57, lng: 23.48, heading: 45, speed: 500, callsign: "BUL202", trail: [[45.57,23.48]]},
+
   ]);
 
-  // Optionally, update plane positions over time
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setPlanes(prev =>
-  //       prev.map(plane => ({
-  //         ...plane,
-  //         lng: plane.lng + 0.01, // Example movement
-  //       }))
-  //     );
-  //   }, 1000);
-  //   return () => clearInterval(interval);
-  // }, []);
+  // Define a custom icon for the planes
+  const planeIcon = new L.Icon({
+    iconUrl: "https://icones.pro/wp-content/uploads/2021/08/symbole-d-avion-et-de-voyage-jaune.png", 
+    iconSize: [32, 32], 
+    iconAnchor: [16, 16], 
+
+  });
+
+  useEffect(() => {
+    // Simulate fetching plane data every 1 seconds
+    const interval = setInterval(() => {
+      // Here would fetch real data from an API
+
+      setPlanes(prevPlanes =>
+  prevPlanes.map(plane => {
+    // Calculate movement
+    const speedKms = plane.speed * 1.852 / 3600; // knots to km/s
+    const headingRad = (plane.heading * Math.PI) / 180;
+    const earthRadius = 6371; // km
+    const deltaLat = (speedKms * Math.cos(headingRad)) / earthRadius;
+    const deltaLon = (speedKms * Math.sin(headingRad)) / (earthRadius * Math.cos(plane.lat * Math.PI / 180));
+    return {
+      ...plane,
+      lat: plane.lat + (deltaLat * 180) / Math.PI,
+      lng: plane.lng + (deltaLon * 180) / Math.PI,
+      trail: [...plane.trail, [plane.lat, plane.lng]].slice(-250) // Keep last 10 positions
+
+     
+    };
+  })
+);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
@@ -95,4 +118,63 @@ function App() {
           {showWind ? "Hide Wind" : "Show Wind"}
         </button>
         <button onClick={() => setShowPressure(v => !v)} style={{background: showPressure ? "#007bff" : "#222", color: "#fff", border: "none", padding: "8px 12px", borderRadius: 4}}>
-          {showPre
+          {showPressure ? "Hide Pressure" : "Show Pressure"}
+        </button>
+      </div>
+      {/* Map with CartoDB Dark Matter as base */}
+      <MapContainer center={[46, 25]} zoom={7.5} style={{ height: "100%", width: "100%" }}>
+        <TileLayer
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          subdomains="abcd"
+          maxZoom={20}
+        />
+        {/* Weather overlays */}
+        <WeatherLayer type="clouds" visible={showClouds} />
+        <WeatherLayer type="wind" visible={showWind} />
+        <WeatherLayer type="pressure" visible={showPressure} />
+
+
+        {/* Plane trails */}
+        {planes.map((plane) =>
+  plane.callsign === selectedCallsign ? (
+    <Polyline
+      key={plane.callsign + "-trail"}
+      positions={plane.trail}
+      color="yellow"
+      weight={5}
+    />
+  ) : null
+)}
+
+
+        {/* Plane markers */} 
+        {planes.map((plane, idx) => (
+  <Marker
+  key={plane.callsign}
+  position={[plane.lat, plane.lng]}
+  icon={planeIcon}
+  rotationAngle={plane.heading}
+>
+  <Popup
+    eventHandlers={{
+      add: () => setSelectedCallsign(plane.callsign),
+      remove: () => setSelectedCallsign(null),
+    }}
+  >
+    <div>
+      <strong>Callsign:</strong> {plane.callsign}<br />
+      <strong>ICAO:</strong> {plane.icao}<br />
+      <strong>Flight Level:</strong> FL{plane.flight_level}<br />
+      <strong>Speed:</strong> {plane.speed} knots<br />
+      <strong>Heading:</strong> {plane.heading}°
+    </div>
+  </Popup>
+</Marker>
+        ))}
+      </MapContainer>
+    </div>
+  );
+}
+
+export default App;
