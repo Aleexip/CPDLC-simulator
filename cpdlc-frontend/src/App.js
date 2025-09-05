@@ -1,64 +1,27 @@
-import React, { useEffect, useRef, useState } from "react"; // Import React and necessary hooks for state management
-import { MapContainer, TileLayer, useMap } from "react-leaflet"; // Import necessary components from react-leaflet for map rendering
+import React, { useEffect, useState } from "react"; // Import React and necessary hooks for state management
+
 import "leaflet/dist/leaflet.css"; // Import Leaflet CSS for proper map styling
-import { Marker, Popup, Polyline } from "react-leaflet"; // Import Marker and Popup for plane markers
-import L from "leaflet"; // Import Leaflet for map functionalities
-import "leaflet-rotatedmarker"; // Import rotated marker plugin for heading support
 
 
+import  WeatherLayer  from "./components/Weather/WeatherLayer"; // Import the WeatherLayer component for weather overlays
+import  WeatherControls from "./components/Weather/WeatherControls"; // Import the WeatherControls component for weather toggles
+import  PlaneMarker from "./components/Aircraft/AircraftMarker"; // Import the PlaneMarker component for individual plane markers
+import MapContainer  from "./components/Map/MapContainer"; // Import the MapContainer component for the main map
+import AirspaceMap from "./components/Map/MapContainer"; // Import the AirspaceMap component for the main map
+import PilotATCPanel from "./components/Controller/PilotAtcPanel"; // Import the PilotATCPanel component for pilot-ATC interactions
 
-// Helper component to add/remove weather overlays
-function WeatherLayer({ type, visible }) {
-  const map = useMap();
-  const layerRef = useRef();
-
-  React.useEffect(() => {
-    if (!visible) {
-      if (layerRef.current) {
-        map.removeLayer(layerRef.current);
-        layerRef.current = null;
-      }
-      return;
-    }
-
-    let url = "";
-   if (type === "clouds")
-    url = `http://localhost:8081/api/weather-tile/clouds_new/{z}/{x}/{y}.png`;
-  if (type === "wind")
-    url = `http://localhost:8081/api/weather-tile/wind_new/{z}/{x}/{y}.png`;
-  if (type === "pressure")
-    url = `http://localhost:8081/api/weather-tile/pressure_new/{z}/{x}/{y}.png`;
-
-    // Create the weather tile layer
-    const L = window.L || require("leaflet");
-    const weatherLayer = L.tileLayer(url, {
-      opacity: 1,
-      attribution: 'Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>',
-      maxZoom: 19,
-    });
-
-    weatherLayer.addTo(map);
-    layerRef.current = weatherLayer;
-
-    // Cleanup on unmount or when toggling
-    return () => {
-      if (layerRef.current) {
-        map.removeLayer(layerRef.current);
-        layerRef.current = null;
-      }
-    };
-  }, [type, visible, map]);
-
-  return null;
-}
 
 function App() {
 
-  // State for each weather overlay
+  // State for each weather overlays
   const [showClouds, setShowClouds] = useState(false);
   const [showWind, setShowWind] = useState(false);
   const [showPressure, setShowPressure] = useState(false);
-  const [selectedCallsign, setSelectedCallsign] = useState(null);
+ 
+
+const [role, setRole] = useState("controller"); // "controller" or "pilot"
+
+const [selectedCallsign, setSelectedCallsign] = useState(null); // Currently selected aircraft callsign
 
   // Sample plane data
   const [planes, setPlanes] = useState([
@@ -70,14 +33,7 @@ function App() {
 
   ]);
 
-  // Define a custom icon for the planes
-  const planeIcon = new L.Icon({
-    iconUrl: "https://icones.pro/wp-content/uploads/2021/08/symbole-d-avion-et-de-voyage-jaune.png", 
-    iconSize: [32, 32], 
-    iconAnchor: [16, 16], 
-
-  });
-
+  
   useEffect(() => {
     // Simulate fetching plane data every 1 seconds
     const interval = setInterval(() => {
@@ -108,72 +64,39 @@ function App() {
 
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
-      {/* Weather control buttons */}
-      <div style={{
-        position: "absolute", zIndex: 1000, top: 10, left: 10, background: "rgba(30,30,30,0.8)", padding: 10, borderRadius: 8
-      }}>
-        <button onClick={() => setShowClouds(v => !v)} style={{marginRight: 8, background: showClouds ? "#007bff" : "#222", color: "#fff", border: "none", padding: "8px 12px", borderRadius: 4}}>
-          {showClouds ? "Hide Clouds" : "Show Clouds"}
-        </button>
-        <button onClick={() => setShowWind(v => !v)} style={{marginRight: 8, background: showWind ? "#007bff" : "#222", color: "#fff", border: "none", padding: "8px 12px", borderRadius: 4}}>
-          {showWind ? "Hide Wind" : "Show Wind"}
-        </button>
-        <button onClick={() => setShowPressure(v => !v)} style={{background: showPressure ? "#007bff" : "#222", color: "#fff", border: "none", padding: "8px 12px", borderRadius: 4}}>
-          {showPressure ? "Hide Pressure" : "Show Pressure"}
-        </button>
-      </div>
-      {/* Map with CartoDB Dark Matter as base */}
-      <MapContainer center={[46, 25]} zoom={7.5} style={{ height: "100%", width: "100%" }}>
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          subdomains="abcd"
-          maxZoom={20}
+      <WeatherControls
+        showClouds={showClouds} setShowClouds={setShowClouds}
+        showWind={showWind} setShowWind={setShowWind}
+        showPressure={showPressure} setShowPressure={setShowPressure}
+      />
+     
+      {/*Role toggle*/}
+      <button 
+       style={{ position: "absolute", top: 80, left: 10, zIndex: 1000 }}
+        onClick={() => setRole(role === "pilot" ? "controller" : "pilot")}
+      >
+        Switch to {role === "pilot" ? "Controller" : "Pilot"} View
+      </button>
+
+    {/* Pilot ATC Panel */}
+      {role === "pilot" && (
+        <PilotATCPanel
+          plane={planes.find(p => p.callsign === selectedCallsign)}
+          onAccept={(callsign) => alert(`Accepted command for ${callsign}`)}
+          onDeny={(callsign) => alert(`Denied command for ${callsign}`)}
         />
-        {/* Weather overlays */}
-        <WeatherLayer type="clouds" visible={showClouds} />
-        <WeatherLayer type="wind" visible={showWind} />
-        <WeatherLayer type="pressure" visible={showPressure} />
+      )}
+      
 
-
-        {/* Plane trails */}
-        {planes.map((plane) =>
-  plane.callsign === selectedCallsign ? (
-    <Polyline
-      key={plane.callsign + "-trail"}
-      positions={plane.trail}
-      color="yellow"
-      weight={5}
-    />
-  ) : null
-)}
-
-
-        {/* Plane markers */} 
-        {planes.map((plane, idx) => (
-  <Marker
-  key={plane.callsign}
-  position={[plane.lat, plane.lng]}
-  icon={planeIcon}
-  rotationAngle={plane.heading}
->
-  <Popup
-    eventHandlers={{
-      add: () => setSelectedCallsign(plane.callsign),
-      remove: () => setSelectedCallsign(null),
-    }}
-  >
-    <div>
-      <strong>Callsign:</strong> {plane.callsign}<br />
-      <strong>ICAO:</strong> {plane.icao}<br />
-      <strong>Flight Level:</strong> FL{plane.flight_level}<br />
-      <strong>Speed:</strong> {plane.speed} knots<br />
-      <strong>Heading:</strong> {plane.heading}°
-    </div>
-  </Popup>
-</Marker>
-        ))}
-      </MapContainer>
+      {/* Main Map */}
+      <AirspaceMap
+        planes={planes}
+        selectedCallsign={selectedCallsign}
+        setSelectedCallsign={setSelectedCallsign}
+        showClouds={showClouds}
+        showWind={showWind}
+        showPressure={showPressure}
+      />
     </div>
   );
 }
