@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-CpdlcSimulatorApplication<cpdlc-simulator>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.alexandrupanait.cpdlc_simulator.CpdlcSimulatorApplication",
+            "projectName": "cpdlc-simulator",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

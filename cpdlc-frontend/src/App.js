@@ -6,6 +6,7 @@ import L from "leaflet"; // Import Leaflet for map functionalities
 import "leaflet-rotatedmarker"; // Import rotated marker plugin for heading support
 
 
+
 // Helper component to add/remove weather overlays
 function WeatherLayer({ type, visible }) {
   const map = useMap();
@@ -94,7 +95,7 @@ function App() {
       ...plane,
       lat: plane.lat + (deltaLat * 180) / Math.PI,
       lng: plane.lng + (deltaLon * 180) / Math.PI,
-      trail: [...plane.trail, [plane.lat, plane.lng]].slice(-250) // Keep last 10 positions
+      trail: [...plane.trail, [plane.lat, plane.lng]].slice(-350) // Keep last 350 positions
 
      
     };
