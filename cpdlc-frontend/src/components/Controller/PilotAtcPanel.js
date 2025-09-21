@@ -22,7 +22,7 @@ function PilotATCPanel({ plane, onAccept, onDeny }) {
       style={{
         position: "absolute",
         top: 150,
-        left: 10,
+        right: 10,
         zIndex: 1000,
         background: "#222",
         color: "#fff",

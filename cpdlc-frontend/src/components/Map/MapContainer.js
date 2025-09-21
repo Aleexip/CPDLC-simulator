@@ -37,7 +37,7 @@ function AirspaceMap({
 
   return (
     <MapContainer
-      center={[45, 25]}
+      center={[46, 25]}
       zoom={7.5}
       style={{ height: "100%", width: "100%" }}
     >
