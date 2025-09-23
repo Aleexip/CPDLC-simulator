@@ -1,0 +1,7 @@
+com\alexandrupanait\cpdlc_simulator\controller\WeatherProxyController.class
+com\alexandrupanait\cpdlc_simulator\CpdlcSimulatorApplication.class
+com\alexandrupanait\cpdlc_simulator\controller\TestController.class
+com\alexandrupanait\cpdlc_simulator\config\DataLoader.class
+com\alexandrupanait\cpdlc_simulator\service\AircraftService.class
+com\alexandrupanait\cpdlc_simulator\model\Aircraft.class
+com\alexandrupanait\cpdlc_simulator\repository\AircraftRepository.class

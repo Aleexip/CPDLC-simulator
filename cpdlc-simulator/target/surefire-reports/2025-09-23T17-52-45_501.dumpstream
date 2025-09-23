@@ -1,0 +1,5 @@
+# Created at 2025-09-23T17:52:46.931
+Boot Manifest-JAR contains absolute paths in classpath 'D:\downloads\proiecte_programare\CPDLC_simulator\cpdlc-simulator\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+
