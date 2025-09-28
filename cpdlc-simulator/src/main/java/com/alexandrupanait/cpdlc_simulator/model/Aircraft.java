@@ -1,8 +1,13 @@
 package com.alexandrupanait.cpdlc_simulator.model;
 
-import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 @Entity
 public class Aircraft {
@@ -94,12 +99,20 @@ public class Aircraft {
     public void setFlightLevel(int flight_level) {
         this.flight_level = flight_level;
     }
+
+    public void setDepartureAirport(String departure_airport) {
+        this.departure_airport = departure_airport;
+    }
     public String getDepartureAirport() {
         return departure_airport;
+    }
+    public void setArrivalAirport(String arrival_airport) {
+        this.arrival_airport = arrival_airport;
     }
     public String getArrivalAirport() {
         return arrival_airport;
     }
+
     public String getCurrentPhase() {
         return current_phase;
     }

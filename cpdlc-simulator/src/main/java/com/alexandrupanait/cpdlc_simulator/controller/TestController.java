@@ -10,10 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TestController {
 
-    /**
-     * Home endpoint to confirm the application is working.
-     * @return a status message in Romanian
-     */
+    
+   
     @GetMapping("/")
     public String home() {
         return "Aplicația CPDLC funcționează!";
