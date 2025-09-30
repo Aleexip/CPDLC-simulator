@@ -16,14 +16,17 @@ public class FlightDataParser {
         String callsign = extractCallsign(lines);
         String departureAirport = extractDepartureAirport(lines);
         String arrivalAirport = extractArrivalAirport(lines);
-        double altitude= extractInitialAltitude(lines);
-        
+        double flightLevel= extractInitialFL(lines);
+        String aircraftType= extractAircraftType(lines);
+      //  double speed = extractSpeed(lines);
         //Create Aircraft object 
 
-        Aircraft aircraft = new Aircraft(callsign, 0.0, 0.0, altitude);
+        Aircraft aircraft = new Aircraft(callsign, 0.0, 0.0, flightLevel);
         aircraft.setDepartureAirport(departureAirport);
         aircraft.setArrivalAirport(arrivalAirport);
-        
+        aircraft.setAircraftType(aircraftType);
+        aircraft.setFlightLevel((int)flightLevel);
+       // aircraft.setSpeed(speed);
         return aircraft;
 
       
@@ -60,7 +63,7 @@ public class FlightDataParser {
 
         return "UNKNOWN";
     }
-    private double extractInitialAltitude(List <String> lines) {
+    private double extractInitialFL(List <String> lines) {
        for (String line : lines) {
         if(line.contains("RFL_VALUE")) {
             String[] parts = line.split("=");
@@ -69,4 +72,31 @@ public class FlightDataParser {
        }
        return 0;
     }
+    private String extractAircraftType(List <String> lines){
+        for(String line:lines) {
+            if(line.startsWith("Aircraft Type")) {
+                String[] parts = line.split(":");
+            if (parts.length > 1) {
+                return parts[1].trim();
+            }
+            }
+        }
+        return "UNKNOWN";
+    }
+    /* 
+   private double extractSpeed(List<String> lines) {
+    for (String line : lines) {
+        if (line.contains("Speed")) {
+            String[] parts = line.split("\\s+"); 
+            for (String part : parts) {
+                if (part.startsWith("K")) {
+                    return Double.parseDouble(part.substring(1)); 
+                }
+            }
+        }
+    }
+    return 0;
+}
+    */
+
 }

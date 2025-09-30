@@ -119,6 +119,9 @@ public class Aircraft {
     public String getAircraftType() {
         return aircraft_type;
     }
+    public void setAircraftType(String aircraft_type) {
+        this.aircraft_type = aircraft_type;
+    }
    public List<String> getMessageLog() {
     return new ArrayList<>(this.messageLog);
 }

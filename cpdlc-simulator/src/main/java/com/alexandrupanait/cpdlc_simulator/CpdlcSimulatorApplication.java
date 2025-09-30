@@ -31,9 +31,11 @@ public class CpdlcSimulatorApplication {
 			FlightDataParser parser = new FlightDataParser();
 			List<Aircraft> aircraftList = new ArrayList<>();
 
-		for (Resource resource : resources) {
-                List<String> lines = new BufferedReader(new InputStreamReader(resource.getInputStream()))
-                                         .lines().toList();
+        for (Resource resource : resources) {
+                List<String> lines;
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
+                    lines = reader.lines().toList();
+                }
 
                 Aircraft aircraft = parser.parseAircraftDataLines(lines);
                 if (aircraft != null) aircraftList.add(aircraft);
@@ -44,7 +46,9 @@ public class CpdlcSimulatorApplication {
                 System.out.println("Callsign: " + ac.getCallsign());
                 System.out.println("Departure: " + ac.getDepartureAirport());
                 System.out.println("Arrival: " + ac.getArrivalAirport());
-                System.out.println("Altitude: " + ac.getAltitude());
+                System.out.println("FL: " + ac.getFlightLevel());
+                System.out.println("Aircraft Type: " + ac.getAircraftType());
+                // System.out.println("Speed: " + ac.getSpeed());
             }
 
         } catch (Exception e) {
