@@ -18,7 +18,8 @@ public class FlightDataParser {
         String arrivalAirport = extractArrivalAirport(lines);
         double flightLevel= extractInitialFL(lines);
         String aircraftType= extractAircraftType(lines);
-      //  double speed = extractSpeed(lines);
+        double speed = extractSpeed(lines);
+        String airline = callsign.substring(0, 3);
         //Create Aircraft object 
 
         Aircraft aircraft = new Aircraft(callsign, 0.0, 0.0, flightLevel);
@@ -26,7 +27,8 @@ public class FlightDataParser {
         aircraft.setArrivalAirport(arrivalAirport);
         aircraft.setAircraftType(aircraftType);
         aircraft.setFlightLevel((int)flightLevel);
-       // aircraft.setSpeed(speed);
+        aircraft.setSpeed(speed);
+        aircraft.setAirline(airline);
         return aircraft;
 
       
@@ -83,20 +85,24 @@ public class FlightDataParser {
         }
         return "UNKNOWN";
     }
-    /* 
+    
    private double extractSpeed(List<String> lines) {
     for (String line : lines) {
-        if (line.contains("Speed")) {
-            String[] parts = line.split("\\s+"); 
-            for (String part : parts) {
-                if (part.startsWith("K")) {
-                    return Double.parseDouble(part.substring(1)); 
-                }
+
+        if (line.startsWith("AcType") || line.startsWith("======")) {
+            continue;
+        }
+
+        String[] parts = line.trim().split("\\s+");
+        if (parts.length >= 5) {
+            String speedStr = parts[4]; 
+            if (speedStr.startsWith("K")) {
+                    return Double.parseDouble(speedStr.substring(1));       
             }
         }
     }
     return 0;
 }
-    */
+    
 
 }

@@ -48,9 +48,10 @@ public class CpdlcSimulatorApplication {
                 System.out.println("Arrival: " + ac.getArrivalAirport());
                 System.out.println("FL: " + ac.getFlightLevel());
                 System.out.println("Aircraft Type: " + ac.getAircraftType());
-                // System.out.println("Speed: " + ac.getSpeed());
+                 System.out.println("Speed: " + ac.getSpeed());
+                System.out.println("Airline: " + ac.getAirline());
             }
-
+// TO DO: save aircraftList to database
         } catch (Exception e) {
             e.printStackTrace();
     }

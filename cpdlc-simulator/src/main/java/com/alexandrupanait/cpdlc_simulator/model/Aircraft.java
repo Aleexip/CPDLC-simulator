@@ -26,6 +26,7 @@ public class Aircraft {
     private String current_phase; // e.g., "climb", "cruise", "descent"
     private String aircraft_type;
     private int flight_level;
+    private String airline;
 
     @ElementCollection
     private List<String> messageLog = new ArrayList<>();
@@ -130,6 +131,12 @@ public class Aircraft {
     }
     public Long getId() {
         return id;
+    }
+    public String getAirline() {
+        return airline;
+    }
+    public void setAirline(String airline) {
+        this.airline = airline;
     }
 
 }
