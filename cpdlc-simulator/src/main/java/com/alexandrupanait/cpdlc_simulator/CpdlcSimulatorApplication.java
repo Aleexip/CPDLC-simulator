@@ -12,12 +12,15 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver; 
 
 import com.alexandrupanait.cpdlc_simulator.model.Aircraft;
 import com.alexandrupanait.cpdlc_simulator.parser.FlightDataParser;
+import com.alexandrupanait.cpdlc_simulator.service.AircraftService;
 
 @SpringBootApplication
 public class CpdlcSimulatorApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CpdlcSimulatorApplication.class, args);
+        var context = SpringApplication.run(CpdlcSimulatorApplication.class, args);
+
+        AircraftService aircraftService = context.getBean(AircraftService.class);
 
 		try{
 			PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
@@ -38,9 +41,14 @@ public class CpdlcSimulatorApplication {
                 }
 
                 Aircraft aircraft = parser.parseAircraftDataLines(lines);
-                if (aircraft != null) aircraftList.add(aircraft);
+                if (aircraft != null){ 
+                    aircraftList.add(aircraft);
+                    aircraftService.addAircraft(aircraft);
+                    System.out.println("Saved aircraft: " + aircraft.getCallsign());
+                }
             }
-			// Print out the parsed aircraft data
+            
+			/*  Print out the parsed aircraft data
             for (Aircraft ac : aircraftList) {
                 System.out.println("=== Aircraft ===");
                 System.out.println("Callsign: " + ac.getCallsign());
@@ -51,7 +59,7 @@ public class CpdlcSimulatorApplication {
                  System.out.println("Speed: " + ac.getSpeed());
                 System.out.println("Airline: " + ac.getAirline());
             }
-// TO DO: save aircraftList to database
+                */
         } catch (Exception e) {
             e.printStackTrace();
     }

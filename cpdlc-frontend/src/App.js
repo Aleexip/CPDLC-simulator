@@ -23,6 +23,7 @@ function App() {
 
   // Sample plane data
   const [planes, setPlanes] = useState([
+    
     {
       icao: "LZIB",
       flight_level: 350,
@@ -72,7 +73,7 @@ function App() {
       speed: 500,
       callsign: "BUL202",
       trail: [[45.57, 23.48]],
-    },
+    }, 
   ]);
 
   useEffect(() => {

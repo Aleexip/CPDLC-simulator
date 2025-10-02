@@ -66,14 +66,23 @@ public class FlightDataParser {
         return "UNKNOWN";
     }
     private double extractInitialFL(List <String> lines) {
-       for (String line : lines) {
+    for (String line : lines) {
         if(line.contains("RFL_VALUE")) {
             String[] parts = line.split("=");
-            return Double.parseDouble(parts[1].trim());
+            if (parts.length > 1) {
+                String value = parts[1].trim();
+                try {
+                    return Double.parseDouble(value);
+                } catch (NumberFormatException e) {
+                    System.out.println("Warning: invalid flight level: " + value);
+                    return 0;
+                }
+            }
         }
-       }
-       return 0;
     }
+    return 0;
+}
+
     private String extractAircraftType(List <String> lines){
         for(String line:lines) {
             if(line.startsWith("Aircraft Type")) {
@@ -86,9 +95,8 @@ public class FlightDataParser {
         return "UNKNOWN";
     }
     
-   private double extractSpeed(List<String> lines) {
+  private double extractSpeed(List<String> lines) {
     for (String line : lines) {
-
         if (line.startsWith("AcType") || line.startsWith("======")) {
             continue;
         }
@@ -97,12 +105,19 @@ public class FlightDataParser {
         if (parts.length >= 5) {
             String speedStr = parts[4]; 
             if (speedStr.startsWith("K")) {
-                    return Double.parseDouble(speedStr.substring(1));       
+                String numericPart = speedStr.substring(1);
+                try {
+                    return Double.parseDouble(numericPart);
+                } catch (NumberFormatException e) {
+                    System.out.println("Warning: invalid speed: " + speedStr);
+                    return 0;
+                }
             }
         }
     }
     return 0;
 }
+
     
 
 }

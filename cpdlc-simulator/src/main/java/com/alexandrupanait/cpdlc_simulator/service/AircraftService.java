@@ -28,10 +28,10 @@ public class AircraftService {
         aircraft.addMessageToLog(message);
         return aircraftRepository.save(aircraft);
     }
-    return null; // or throw exception
+    return null; 
 }
 
-@Autowired
+@Autowired 
 private AircraftRepository aircraftRepository;
 
 
