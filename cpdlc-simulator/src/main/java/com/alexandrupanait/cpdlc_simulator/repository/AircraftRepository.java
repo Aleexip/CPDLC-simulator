@@ -8,4 +8,6 @@ import com.alexandrupanait.cpdlc_simulator.model.Aircraft;
 @Repository
 public interface AircraftRepository extends JpaRepository<Aircraft, Long> {
     Aircraft findByCallsign(String callsign);
+    boolean existsByCallsign(String callsign);
 }
+    

@@ -8,7 +8,7 @@ function PlaneMarker({ plane, planeIcon, selectedCallsign, setSelectedCallsign }
     const [status, setStatus] = useState(plane.status || "pending");
     const [isHovered, setIsHovered] = useState(false);
 
-      if (!plane) return null;
+     if (!plane || plane.lat == null || plane.lng == null || plane.heading == null || plane.speed ==null) return null;
   return (
     <>
       <Marker

@@ -14,6 +14,6 @@ public class TestController {
    
     @GetMapping("/")
     public String home() {
-        return "Aplicația CPDLC funcționează!";
+        return "CPDLC Simulator is running!";
     }
 }

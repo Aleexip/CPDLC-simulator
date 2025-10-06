@@ -22,14 +22,23 @@ public class AircraftService {
         return aircraftRepository.save(aircraft);
     }
 
+
     public Aircraft addMessageToAircraft(String callsign, String message) {
     Aircraft aircraft = aircraftRepository.findByCallsign(callsign);
     if (aircraft != null) {
         aircraft.addMessageToLog(message);
         return aircraftRepository.save(aircraft);
     }
+
     return null; 
 }
+
+public void deleteAllAircraft() {
+        aircraftRepository.deleteAll(); 
+    }
+public boolean existsByCallsign(String callsign) {
+        return aircraftRepository.existsByCallsign(callsign);
+    }
 
 @Autowired 
 private AircraftRepository aircraftRepository;

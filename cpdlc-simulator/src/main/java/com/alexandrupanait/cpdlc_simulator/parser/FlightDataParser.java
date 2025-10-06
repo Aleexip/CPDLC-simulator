@@ -3,6 +3,7 @@ package com.alexandrupanait.cpdlc_simulator.parser;
 import java.util.List;
 
 import com.alexandrupanait.cpdlc_simulator.model.Aircraft;
+import com.alexandrupanait.cpdlc_simulator.util.AirportCoordinates;
 
 public class FlightDataParser {
     // Method to parse flight data from a file and return an Aircraft object
@@ -22,13 +23,21 @@ public class FlightDataParser {
         String airline = callsign.substring(0, 3);
         //Create Aircraft object 
 
-        Aircraft aircraft = new Aircraft(callsign, 0.0, 0.0, flightLevel);
+        double[] depCoords = AirportCoordinates.airportCoords.getOrDefault(departureAirport, new double[]{0.0, 0.0});
+        double[] arrCoords = AirportCoordinates.airportCoords.getOrDefault(arrivalAirport, new double[]{0.0, 0.0});
+        double heading = Math.toDegrees(Math.atan2(
+            arrCoords[1] - depCoords[1],
+            arrCoords[0] - depCoords[0]
+        ));
+        Aircraft aircraft = new Aircraft(callsign, depCoords[0], depCoords[1], flightLevel);
+        aircraft.setHeading((heading+360) %360);
         aircraft.setDepartureAirport(departureAirport);
         aircraft.setArrivalAirport(arrivalAirport);
         aircraft.setAircraftType(aircraftType);
         aircraft.setFlightLevel((int)flightLevel);
         aircraft.setSpeed(speed);
         aircraft.setAirline(airline);
+        System.out.println(aircraft.getCallsign() + " dep lat/lng: " + depCoords[0] + "/" + depCoords[1]);
         return aircraft;
 
       

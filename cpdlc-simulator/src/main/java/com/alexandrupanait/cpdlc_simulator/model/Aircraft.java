@@ -44,13 +44,14 @@ public class Aircraft {
     this.longitude = longitude;
     this.altitude = altitude;
 
+    // default values
     this.heading = 0.0;
     this.speed = 250.0; // default speed in knots
     this.departure_airport = "UNKNOWN";
     this.arrival_airport = "UNKNOWN";
     this.current_phase = "cruise";
     this.aircraft_type = "A320"; // default aircraft type
-    this.flight_level = (int)(altitude / 100); // approximate flight level
+    this.flight_level = (int)(altitude); 
     this.messageLog = new ArrayList<>();
 
 }

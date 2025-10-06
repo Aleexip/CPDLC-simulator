@@ -14,6 +14,7 @@ import com.alexandrupanait.cpdlc_simulator.model.Aircraft;
 import com.alexandrupanait.cpdlc_simulator.parser.FlightDataParser;
 import com.alexandrupanait.cpdlc_simulator.service.AircraftService;
 
+
 @SpringBootApplication
 public class CpdlcSimulatorApplication {
 
@@ -23,6 +24,10 @@ public class CpdlcSimulatorApplication {
         AircraftService aircraftService = context.getBean(AircraftService.class);
 
 		try{
+            // Clear existing aircraft data
+           // aircraftService.deleteAllAircraft();
+
+            // Load flight plan files from the classpath
 			PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 			Resource[] resources = resolver.getResources("classpath:flights_data/*.fp");
 
@@ -34,6 +39,7 @@ public class CpdlcSimulatorApplication {
 			FlightDataParser parser = new FlightDataParser();
 			List<Aircraft> aircraftList = new ArrayList<>();
 
+            // Parse each flight plan file and save the aircraft data
         for (Resource resource : resources) {
                 List<String> lines;
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
@@ -41,14 +47,17 @@ public class CpdlcSimulatorApplication {
                 }
 
                 Aircraft aircraft = parser.parseAircraftDataLines(lines);
-                if (aircraft != null){ 
-                    aircraftList.add(aircraft);
-                    aircraftService.addAircraft(aircraft);
-                    System.out.println("Saved aircraft: " + aircraft.getCallsign());
-                }
+                if (!aircraftService.existsByCallsign(aircraft.getCallsign())) {
+                        aircraftService.addAircraft(aircraft);
+                        aircraftList.add(aircraft);
+                        System.out.println("Saved aircraft: " + aircraft.getCallsign());
+                    } else {
+                        System.out.println("Duplicate aircraft skipped: " + aircraft.getCallsign());
+                    }
             }
             
-			/*  Print out the parsed aircraft data
+            
+			// Print out the parsed aircraft data
             for (Aircraft ac : aircraftList) {
                 System.out.println("=== Aircraft ===");
                 System.out.println("Callsign: " + ac.getCallsign());
@@ -59,7 +68,7 @@ public class CpdlcSimulatorApplication {
                  System.out.println("Speed: " + ac.getSpeed());
                 System.out.println("Airline: " + ac.getAirline());
             }
-                */
+                
         } catch (Exception e) {
             e.printStackTrace();
     }

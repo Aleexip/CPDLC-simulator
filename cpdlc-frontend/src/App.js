@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"; // Import React and necessary hooks for state management
+import React, { useEffect, useState, useRef} from "react"; // Import React and necessary hooks for state management
 
 import "leaflet/dist/leaflet.css"; // Import Leaflet CSS for proper map styling
 
@@ -11,6 +11,9 @@ import PilotATCPanel from "./components/Controller/PilotAtcPanel"; // Import the
 import ControllerATCPanel from "./components/Controller/CommandPanel"; // Import the ControllerATCPanel component for controller commands
 import CommandPanel from "./components/Controller/CommandPanel";
 
+import { aircraftService } from './services/aircraftService';
+
+
 function App() {
   // State for each weather overlays
   const [showClouds, setShowClouds] = useState(false);
@@ -18,12 +21,11 @@ function App() {
   const [showPressure, setShowPressure] = useState(false);
 
   const [role, setRole] = useState("controller"); // "controller" or "pilot"
-
   const [selectedCallsign, setSelectedCallsign] = useState(null); // Currently selected aircraft callsign
-
+  
   // Sample plane data
   const [planes, setPlanes] = useState([
-    
+    /*
     {
       icao: "LZIB",
       flight_level: 350,
@@ -74,36 +76,107 @@ function App() {
       callsign: "BUL202",
       trail: [[45.57, 23.48]],
     }, 
+    */
   ]);
+   // Ref to hold the latest planes state
+  const planesRef = useRef([]);
+  planesRef.current = planes;
+
+  // Fetch aircraft data from backend on component mount
+  useEffect(() => {
+  const fetchAircraft = async () => {
+    try {
+      const data = await aircraftService.fetchAircraft();
+      const planesFromBackend = data.map((plane) => ({
+        ...plane,
+        lat: plane.latitude,
+        lng: plane.longitude,
+        heading: plane.heading,
+        trail: [[plane.latitude, plane.longitude]], 
+      }));
+      
+      let index = 0;
+      const spwanInterval = setInterval(() => {
+        if(index >= planesFromBackend.length) return clearInterval(spwanInterval);
+        setPlanes(prev=> [...prev, planesFromBackend[index]]);
+        index++;
+      }, 200); // spawn a new plane every 2 seconds
+      } catch (error) 
+      {
+        console.error('Error fetching aircraft in App component:', error);
+      }
+    };
+
+  fetchAircraft();
+}, []);
 
   useEffect(() => {
-    // Simulate fetching plane data every 1 seconds
-    const interval = setInterval(() => {
-      // Here would fetch real data from an API
+    let animationFrameId;
+  /* let lastTime = performance.now();
 
+const updatePositions = (currentTime) => {
+  const dt = (currentTime - lastTime) / 1000; // secunde
+  lastTime = currentTime;
+
+  setPlanes(prevPlanes =>
+    prevPlanes.map(plane => {
+      const speedKms = (plane.speed * 1.852) / 3600; // km/s
+      const headingRad = (plane.heading * Math.PI) / 180;
+      const earthRadius = 6371;
+
+      const deltaLat = (speedKms * Math.cos(headingRad) * dt) / earthRadius;
+      const deltaLon = (speedKms * Math.sin(headingRad) * dt) / (earthRadius * Math.cos((plane.lat * Math.PI) / 180));
+
+      const newLat = plane.lat + (deltaLat * 180) / Math.PI;
+      const newLng = plane.lng + (deltaLon * 180) / Math.PI;
+
+      return {
+        ...plane,
+        lat: newLat,
+        lng: newLng,
+        trail: [...plane.trail, [newLat, newLng]].slice(-50),
+      };
+    })
+  );
+
+  requestAnimationFrame(updatePositions);
+};
+
+requestAnimationFrame(updatePositions);
+
+*/
+    const updatePositions = () => {
       setPlanes((prevPlanes) =>
         prevPlanes.map((plane) => {
-          // Calculate movement
-          const speedKms = (plane.speed * 1.852) / 3600; // knots to km/s
+          // Simple movement logic: move in the direction of heading at speed
+          const speedKms = (plane.speed * 1.852) / 3600; // knots -> km/s
           const headingRad = (plane.heading * Math.PI) / 180;
-          const earthRadius = 6371; // km
+          const earthRadius = 6371;
+
+          // Calculate new position using  the haversine formula approximation
           const deltaLat = (speedKms * Math.cos(headingRad)) / earthRadius;
           const deltaLon =
-            (speedKms * Math.sin(headingRad)) /
-            (earthRadius * Math.cos((plane.lat * Math.PI) / 180));
+            (speedKms * Math.sin(headingRad)) / (earthRadius * Math.cos((plane.lat * Math.PI) / 180));
+
+            // Update lat/lon in degrees from radians
+          const newLat = plane.lat + (deltaLat * 180) / Math.PI;
+          const newLng = plane.lng + (deltaLon * 180) / Math.PI;
+
           return {
             ...plane,
-            lat: plane.lat + (deltaLat * 180) / Math.PI,
-            lng: plane.lng + (deltaLon * 180) / Math.PI,
-            trail: [...plane.trail, [plane.lat, plane.lng]].slice(-350), // Keep last 350 positions
+            lat: newLat,
+            lng: newLng,
+            trail: [...plane.trail, [newLat, newLng]].slice(-50), // keep last 50 positions
           };
         })
       );
-    }, 1000);
 
-    return () => clearInterval(interval);
+      animationFrameId = requestAnimationFrame(updatePositions);
+    };
+
+    animationFrameId = requestAnimationFrame(updatePositions);
+    return () => cancelAnimationFrame(animationFrameId);
   }, []);
-
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
       <WeatherControls
@@ -123,6 +196,7 @@ function App() {
         Switch to {role === "pilot" ? "Controller" : "Pilot"} View
       </button>
 
+    
       {/* Pilot  Panel */}
       {role === "pilot" && (
         <PilotATCPanel

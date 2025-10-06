@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.alexandrupanait.cpdlc_simulator.model.Aircraft;
 import com.alexandrupanait.cpdlc_simulator.service.AircraftService;
 
-@CrossOrigin(origins = "http://localhost:3000") // Enable CORS for the React app running on localhost:3000
+@CrossOrigin(origins = "http://localhost:3000") // Allow requests from React frontend
 @RestController
-@RequestMapping("/api/aircraft")
+@RequestMapping("/api/aircraft") // Base path for all aircraft-related endpoints
 public class AircraftController {
     private final AircraftService aircraftService;
 
@@ -26,17 +26,21 @@ public class AircraftController {
 
     // Endpoints for managing aircraft 
 
-    // enpoint to get all aircraft
+    // Endpoint to get all aircraft
     @GetMapping
     public List<Aircraft> getAllAircraft() {
         return aircraftService.getAllAircraft();
     }
+
+    
 
     // endpoint to add a message to an aircraft's log
     @PostMapping("/{callsign}/message")
     public Aircraft addMessageToAircraft(@PathVariable String callsign, @RequestBody String message) {
         return aircraftService.addMessageToAircraft(callsign, message);
     }
+
+    
     
 
 }
