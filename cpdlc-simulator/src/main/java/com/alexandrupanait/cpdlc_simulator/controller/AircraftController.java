@@ -39,8 +39,4 @@ public class AircraftController {
     public Aircraft addMessageToAircraft(@PathVariable String callsign, @RequestBody String message) {
         return aircraftService.addMessageToAircraft(callsign, message);
     }
-
-    
-    
-
 }

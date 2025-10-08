@@ -1,11 +1,21 @@
 package com.alexandrupanait.cpdlc_simulator.parser;
 
 import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Component;
 
 import com.alexandrupanait.cpdlc_simulator.model.Aircraft;
-import com.alexandrupanait.cpdlc_simulator.util.AirportCoordinates;
+import com.alexandrupanait.cpdlc_simulator.model.Airport;
+import com.alexandrupanait.cpdlc_simulator.repository.AirportRepository;
 
+@Component
 public class FlightDataParser {
+     private final AirportRepository airportRepository;
+
+    public FlightDataParser(AirportRepository airportRepository) {
+        this.airportRepository = airportRepository;
+    }
     // Method to parse flight data from a file and return an Aircraft object
     public Aircraft parseAircraftDataLines(List <String> lines) {
       
@@ -23,8 +33,9 @@ public class FlightDataParser {
         String airline = callsign.substring(0, 3);
         //Create Aircraft object 
 
-        double[] depCoords = AirportCoordinates.airportCoords.getOrDefault(departureAirport, new double[]{0.0, 0.0});
-        double[] arrCoords = AirportCoordinates.airportCoords.getOrDefault(arrivalAirport, new double[]{0.0, 0.0});
+       double[] depCoords = getAirportCoordinates(departureAirport);
+       double[] arrCoords = getAirportCoordinates(arrivalAirport);
+
         double heading = Math.toDegrees(Math.atan2(
             arrCoords[1] - depCoords[1],
             arrCoords[0] - depCoords[0]
@@ -40,8 +51,24 @@ public class FlightDataParser {
         System.out.println(aircraft.getCallsign() + " dep lat/lng: " + depCoords[0] + "/" + depCoords[1]);
         return aircraft;
 
-      
     }
+
+
+    private double[] getAirportCoordinates(String icao) {
+    if (icao == null) return new double[]{0.0, 0.0};
+
+
+    String cleanIcao = icao.replace("\"", "").trim();
+
+    Optional<Airport> airportOpt = airportRepository.findByIcao(cleanIcao);
+    if (airportOpt.isEmpty()) {
+        System.out.println("Airport not found in DB: [" + cleanIcao + "]");
+    }
+
+    return airportOpt.map(a -> new double[]{a.getLatitude(), a.getLongitude()})
+                     .orElse(new double[]{0.0, 0.0});
+}
+
 
     private String extractCallsign(List <String> lines) {
         

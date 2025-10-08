@@ -55,7 +55,9 @@ function AirspaceMap({
       <WeatherLayer type="pressure" visible={showPressure} />
 
       {/* Plane markers + trails */}
-      {planes.map((plane) => (
+      {planes
+      .filter((plane) => plane && plane.callsign)
+      .map((plane) => (
         <PlaneMarker
           key={plane.callsign}
           plane={plane}
