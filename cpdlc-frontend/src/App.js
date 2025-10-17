@@ -35,9 +35,9 @@ function App() {
             ...plane,
             lat: plane.latitude,
             lng: plane.longitude,
-            heading: plane.heading || 0,
+            heading: Math.round((plane.heading || 0) * 10) / 10,
             speed: plane.speed || 0,
-            flight_level: plane.flight_level || 0,
+            flight_level: plane.flightLevel || 0,
             trail: [[plane.latitude, plane.longitude]],
             id: `${plane.callsign}_${Date.now()}_${index}` // Unique ID
           }));
@@ -70,7 +70,7 @@ function App() {
 
   // Update plane positions
   useEffect(() => {
-    let lastTime = performance.now();
+    let lastTime = performance.now(); // Initialize lastTime
 
     const interval = setInterval(() => {
       const currentTime = performance.now();
@@ -85,6 +85,7 @@ function App() {
             const headingRad = (plane.heading * Math.PI) / 180;
             const earthRadius = 6371;
 
+            //Calculate new position using simple equirectangular approximation  (proiectie cilindrica echidistanta)
             const deltaLat = (speedKms * Math.cos(headingRad) * dt) / earthRadius;
             const deltaLon =
               (speedKms * Math.sin(headingRad) * dt) /
@@ -116,8 +117,6 @@ function App() {
     plane && plane.callsign && plane.lat != null && plane.lng != null
   );
 
-  console.log('Current planes state:', planes);
-  console.log('Valid planes for rendering:', validPlanes);
 
   return (
     <div style={{ height: "100vh", width: "100vw" }}>

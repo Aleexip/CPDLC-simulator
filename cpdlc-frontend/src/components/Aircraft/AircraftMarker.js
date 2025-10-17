@@ -26,11 +26,14 @@ function PlaneMarker({ plane, planeIcon, selectedCallsign, setSelectedCallsign }
        <Tooltip direction="top" offset={[0, -10]} opacity={1}>
         <div style={{ userSelect: "none" }}>
             <strong>Callsign:</strong> {plane.callsign}<br />
-            <strong>ICAO:</strong> {plane.icao}<br />
-            <strong>Flight Level:</strong> FL{plane.flight_level}<br />
+            <strong>Aircraft Type:</strong> {plane.aircraftType}<br />
+            <strong>Flight Level:</strong> FL{plane.flightLevel}<br />
             <strong>Speed:</strong> {plane.speed} knots<br />
-            <strong>Heading:</strong> {plane.heading}°
-            
+            <strong>Heading:</strong> {plane.heading}<br />
+            <strong>Status: </strong>{plane.currentPhase}<br />
+            <strong>Airline: </strong>{plane.airline}<br />
+            <strong>Departure: </strong>{plane.departureAirport}<br />
+            <strong>Arrival: </strong>{plane.arrivalAirport}<br />
         </div>
         
         </Tooltip>
