@@ -1,0 +1,2 @@
+docker exec -it cpdlc_postgres
+psql -U atcuser -d atc

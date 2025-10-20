@@ -16,14 +16,6 @@ public class DataLoader implements CommandLineRunner{
 
    @Override
     public void run(String... args) throws Exception {
-        // Create and save a sample aircraft
-        /* 
-        if (aircraftRepository.count() == 0) {
-        Aircraft a1 = new Aircraft("TEST123", 40.7128, -74.0060, 30000);
-        Aircraft a2 = new Aircraft("FLY456", 51.5074, -0.1278, 28000);
-        aircraftRepository.save(a1);
-        aircraftRepository.save(a2);
-        }
-        */
+       
     }
 }
