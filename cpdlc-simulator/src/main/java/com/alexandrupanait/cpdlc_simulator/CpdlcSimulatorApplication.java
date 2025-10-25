@@ -40,7 +40,7 @@ public class CpdlcSimulatorApplication implements CommandLineRunner {
     @Override
     @Order(2) // Run AFTER AirportDataLoader
     public void run(String... args) throws Exception {
-        System.out.println("=== Starting Aircraft Data Load ===");
+        System.out.println("Starting Aircraft Data Load");
         
         // Verify airports are loaded
         long airportCount = airportRepository.count();

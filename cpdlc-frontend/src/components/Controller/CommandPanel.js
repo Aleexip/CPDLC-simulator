@@ -1,5 +1,7 @@
 // CommandPanel.js
 import React, { useState } from "react";
+import axios from "axios"; // for post requests to the backend
+
 
 function CommandPanel({ plane, onSendCommand }) {
   const [customValues, setCustomValues] = useState({
@@ -24,31 +26,41 @@ function CommandPanel({ plane, onSendCommand }) {
     );
 
   // Preset values
-  const headingOptions = [
-    plane.heading + 10,
-    plane.heading - 10,
-    plane.heading + 30,
-    "Custom",
-  ];
-  const altitudeOptions = [
-    plane.flight_level + 1000,
-    plane.flight_level - 1000,
-    plane.flight_level + 5000,
-    "Custom",
-  ];
-  const speedOptions = [
-    plane.speed + 50,
-    plane.speed - 50,
-    plane.speed + 100,
-    "Custom",
-  ];
+  const headingOptions = [plane.heading + 10, plane.heading - 10, plane.heading + 30, "Custom"];
+  const altitudeOptions = [plane.flight_level + 1000, plane.flight_level - 1000, plane.flight_level + 5000, "Custom"];
+  const speedOptions = [plane.speed + 50, plane.speed - 50, plane.speed + 100, "Custom"];
 
-  const handleSend = (type, value) => {
-    if (value === "Custom") value = customValues[type];
-    if (value !== "" && !isNaN(value))
-      onSendCommand(plane.callsign, type, Number(value));
-    setCustomValues((prev) => ({ ...prev, [type]: "" }));
-  };
+ const handleSend = async (type, value) => {
+  if (value === "Custom") value = customValues[type];
+  if (value === "" || isNaN(value)) return;
+
+  try {
+    // POST to backend
+    await axios.post(
+      `http://localhost:8081/api/cpdlc/session/${plane.sessionId}/message`,
+      null,
+      {
+       
+          sender: "ATC",        // or "Pilot"
+          type: type.toUpperCase(), 
+          content: value
+      
+      }
+    );
+
+    //  Update command history
+    if (!plane.commandsHistory) plane.commandsHistory = [];
+    plane.commandsHistory.push({ type, value, status: "SENT" });
+
+  } catch (err) {
+    console.error("Error sending command:", err);
+    plane.commandsHistory.push({ type, value, status: "FAILED" });
+  }
+
+  // Reset input custom
+  setCustomValues((prev) => ({ ...prev, [type]: "" }));
+};
+
 
   // Styles
   const buttonStyle = (type) => ({
@@ -61,8 +73,8 @@ function CommandPanel({ plane, onSendCommand }) {
       type === "heading"
         ? "#3b82f6"
         : type === "altitude"
-        ? "#10b981"
-        : "#f97316",
+        ? "#3b82f6"
+        : "#3b82f6",
     color: "#fff",
     fontWeight: "bold",
     transition: "0.2s",
@@ -109,7 +121,9 @@ function CommandPanel({ plane, onSendCommand }) {
               onChange={(e) =>
                 setCustomValues({ ...customValues, heading: e.target.value })
               }
-              onBlur={() => handleSend("heading", "Custom")}
+             onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSend("heading", "Custom");
+                          }}
               style={customInputStyle}
             />
           ) : (

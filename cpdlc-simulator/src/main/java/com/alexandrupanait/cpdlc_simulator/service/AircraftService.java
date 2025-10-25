@@ -22,7 +22,7 @@ public class AircraftService {
         this.aircraftRepository = aircraftRepository;
     }
 
-    // Remove the @Autowired annotation and use the repository directly
+  
     public List<Aircraft> getAllAircraft() {
         return aircraftRepository.findAll();
     }
@@ -31,6 +31,7 @@ public class AircraftService {
         return aircraftRepository.save(aircraft);
     }
 
+    //TODO: check if this is useless
     public Aircraft addMessageToAircraft(String callsign, String message) {
         Aircraft aircraft = aircraftRepository.findByCallsign(callsign);
         if (aircraft != null) {

@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.alexandrupanait.cpdlc_simulator.model.CpdlcMessage;
 import com.alexandrupanait.cpdlc_simulator.model.CpdlcSession;
 import com.alexandrupanait.cpdlc_simulator.repository.CpdlcMessageRepository;
 import com.alexandrupanait.cpdlc_simulator.repository.CpdlcSessionRepository;
@@ -27,9 +26,10 @@ public class CpdlcSessionService {
         CpdlcSession session = new CpdlcSession();
         session.setCallsign(callsign);
         session.setStatus("ACTIVE");
-        cpdlcSessionRepository.save(session);
-        session.setStartedAt(LocalDateTime.now());
 
+        session.setStartedAt(LocalDateTime.now());
+        cpdlcSessionRepository.save(session);
+        
     }
     public void closeSession(Long sessionId){
     //set status to closed and closed at timestamp
@@ -37,38 +37,19 @@ public class CpdlcSessionService {
     Optional<CpdlcSession> optionalSession = cpdlcSessionRepository.findById(sessionId);
     if(optionalSession.isPresent()){
         CpdlcSession session = optionalSession.get();
-        session.setStatus("CLOSED");
-        session.setClosedAt(LocalDateTime.now());
-        cpdlcSessionRepository.save(session);
 
+        if (!"CLOSED".equals(session.getStatus())) {
+            session.setStatus("CLOSED");
+            session.setClosedAt(LocalDateTime.now());
+            cpdlcSessionRepository.save(session);
         }
+    } else {
+        System.out.println("Session with id " + sessionId + " not found!");
+    }
     }
 
   public Optional<CpdlcSession> getSessionById(Long sessionId){
     return cpdlcSessionRepository.findById(sessionId);
         }
-
-
-    public void addMessage(Long sessionId, String sender, String messageType, String content){
-    Optional<CpdlcSession> optionalSession = cpdlcSessionRepository.findById(sessionId);
-    if(optionalSession.isPresent()){
-        CpdlcSession session = optionalSession.get();
-
-        CpdlcMessage message = new CpdlcMessage();
-        message.setSession(session);
-        message.setSender(sender);
-        message.setMessageType(messageType);
-        message.setContent(content);
-        message.setTimestamp(LocalDateTime.now());
-
-        cpdlcMessageRepository.save(message);
-    } else {
-    
-        System.out.println("Session with id " + sessionId + " not found!");
-    }
-}
-
-
-
    
 }

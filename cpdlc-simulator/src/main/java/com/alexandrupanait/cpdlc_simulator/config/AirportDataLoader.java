@@ -146,7 +146,7 @@ public class AirportDataLoader implements CommandLineRunner {
             long finalCount = airportRepository.count();
             
             System.out.println("\n========================================");
-            System.out.println("=== AIRPORT LOAD COMPLETE ===");
+            System.out.println("AIRPORT LOAD COMPLETE ");
             System.out.println("Successfully parsed: " + successCount);
             System.out.println("Skipped entries: " + skipCount);
             System.out.println("Total lines: " + lineNumber);
@@ -158,7 +158,7 @@ public class AirportDataLoader implements CommandLineRunner {
             }
 
         } catch (Exception e) {
-            System.err.println("\n!!! ERROR IN AIRPORT LOADER !!!");
+            System.err.println("\n ERROR IN AIRPORT LOADER !!!");
             e.printStackTrace();
         }
     }
